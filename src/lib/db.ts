@@ -1,19 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from "mongoose";
 
+const MONGO_URI = process.env.MONGO_URI!;
+
+if (!MONGO_URI) {
+  throw new Error("Missing MONGO_URI in environment variables");
+}
+
+let cached = (global as any).mongoose;
+
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
 export async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI!);
-    const connection = mongoose.connection;
-    connection.on("connected", () => {
-      console.log("Connected to MongoDB");
-    });
-    connection.on("error", (error) => {
-      console.log("Error in connecting to MongoDB");
-      console.log(error);
-      process.exit();
-    });
-  } catch (error) {
-    console.log("Something went wrong in connecting to Database");
-    console.log(error);
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose);
   }
+
+  cached.conn = await cached.promise;
+
+  return cached.conn;
 }

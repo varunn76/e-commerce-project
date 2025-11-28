@@ -11,20 +11,12 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { useCart } from "@/hooks/useCart";
-import { useState } from "react";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { cart } = useCart();
   const router = useRouter();
   const pathname = usePathname();
-
-  const [username] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("username");
-    }
-    return null;
-  });
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -54,7 +46,7 @@ const Navbar = () => {
           <span className="text-xs">Cart</span>
         </Link>
 
-        {!username ? (
+        {!user ? (
           <button
             onClick={() => router.push("/login")}
             className="flex flex-col items-center text-black"
@@ -65,24 +57,19 @@ const Navbar = () => {
         ) : (
           <Popover>
             <PopoverTrigger asChild>
-              <button className="flex flex-col items-center cursor-pointer text-black">
+              <button className="flex flex-col items-center cursor-pointer">
                 <User className="h-5 w-5" />
-                <span className="text-xs">User</span>
+                <span className="text-xs">
+                  {user.role === "admin" ? "Admin" : "User"}
+                </span>
               </button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-40 p-2 bg-white/80 space-y-2 backdrop-blur-xl rounded-xl shadow-lg">
-              {user?.role === "admin" && (
-                <button
-                  onClick={() => router.push("/admin/products")}
-                  className="w-full text-left px-3 py-2 rounded-md bg-primary/10 hover:bg-primary/50 text-black"
-                >
-                  Admin Panel
-                </button>
-              )}
+            <PopoverContent className="w-40 p-2 bg-white/90 space-y-2 backdrop-blur-xl rounded-xl shadow-lg">
               <button
                 onClick={logout}
-                className="w-full text-left px-3 py-2 rounded-md hover:bg-red-200 bg-red-100 text-red-600"
+                className="w-full text-left px-3 py-2 rounded-md 
+                  bg-red-100 hover:bg-red-200 transition text-red-600"
               >
                 Logout
               </button>

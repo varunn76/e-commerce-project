@@ -45,3 +45,10 @@ export type ProductCardProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate: any;
 };
+
+export type AuthUser = {
+  _id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+};

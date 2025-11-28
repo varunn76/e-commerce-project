@@ -1,24 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { userInfo } from "@/app/action";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { AuthUser } from "@/types/product";
 
 export function useAuth() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    async function fetchUser() {
-      const u = await userInfo();
-      setUser(u);
+  const loadUser = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/user", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setUser(data.user || null);
+    } catch (err) {
+      console.log(err);
+    } finally {
       setLoading(false);
     }
-    fetchUser();
-  }, []);
+  }, [pathname]);
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   const signup = async (values: {
     name: string;
@@ -67,26 +77,21 @@ export function useAuth() {
         setError(data.message || "Login failed");
         return;
       }
-      window.localStorage.setItem("username", data.user.name);
+      await loadUser();
 
       router.push("/");
+      router.refresh();
     } catch (err) {
       setError("Login error");
     } finally {
       setLoading(false);
     }
   };
-  
-  const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      window.localStorage.setItem("username", "");
 
-      router.push("/login");
-      router.refresh();
-    } catch (err) {
-      console.log("Logout error:", err);
-    }
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    await loadUser();
+    router.push("/login");
   };
 
   return {
