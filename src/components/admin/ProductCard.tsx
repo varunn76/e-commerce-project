@@ -42,7 +42,7 @@ const ProductCard = ({ product, onDelete, onUpdate }: ProductCardProps) => {
             description="Are you sure you want to delete this product?"
             onConfirm={() => onDelete(product._id)}
             trigger={
-              <Button variant="destructive" className="px-3 h-8 text-sm">
+              <Button variant="destructive" className="px-3 bg-red-400 hover:bg-red-500 cursor-pointer h-8 text-sm">
                 <Trash2 size={16} /> Delete
               </Button>
             }
