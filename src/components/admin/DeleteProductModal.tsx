@@ -40,12 +40,16 @@ const DeleteModal = ({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-end gap-3 pt-4">
+               <div className="flex justify-center md:justify-end  gap-3 pt-4">
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
 
-          <Button variant="destructive" onClick={handleConfirm}>
+          <Button
+            variant="destructive"
+            className="px-3 bg-red-400 hover:bg-red-500 cursor-pointer h-8 text-sm"
+            onClick={handleConfirm}
+          >
             Yes, Delete
           </Button>
         </div>
